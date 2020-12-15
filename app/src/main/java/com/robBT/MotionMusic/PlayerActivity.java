@@ -1,4 +1,4 @@
-package com.android.developer.robBT.MotionMusic;
+package com.robBT.MotionMusic;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

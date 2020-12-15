@@ -1,4 +1,4 @@
-package com.android.developer.robBT.MotionMusic;
+package com.robBT.MotionMusic;
 
 import android.app.Activity;
 import android.os.Bundle;

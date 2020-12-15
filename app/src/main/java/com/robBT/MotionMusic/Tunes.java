@@ -1,4 +1,4 @@
-package com.android.developer.robBT.MotionMusic;
+package com.robBT.MotionMusic;
 
 import android.Manifest;
 import android.content.Context;
@@ -41,7 +41,7 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
     //shake to play/pause
     private SensorManager sensorManager;
     private Sensor accelerometer;
-    private Boolean accAvailable;
+    private Boolean accAvailable, accFirst = false;
     private float currX, currY, currZ, lastX, lastY, lastZ, xDiff, yDiff, zDiff;
     public int songLen = 0;
 
@@ -87,7 +87,7 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
             }
         });
 
-        //shake to play random
+        //initialise sensor
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -107,20 +107,20 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
     }
 
     public ArrayList<File> findSong(File root){
-        ArrayList<File> at = new ArrayList<File>();
+        ArrayList<File> songList = new ArrayList<File>();
         File[] files = root.listFiles();
         for(File singleFile : files){
             if(singleFile.isDirectory() && !singleFile.isHidden()){
-                at.addAll(findSong(singleFile));
+                songList.addAll(findSong(singleFile));
             }
             else{
-                if(singleFile.getName().endsWith(".mp3") ||
-                        singleFile.getName().endsWith(".wav")){
-                    at.add(singleFile);
+                if( (singleFile.getName().endsWith(".mp3") || singleFile.getName().endsWith(".wav")) &&
+                        (!singleFile.getName().contains("._") || !singleFile.getName().contains("slack")) ){
+                    songList.add(singleFile);
                 }
             }
         }
-        return at;
+        return songList;
     }
 
     public void display(){
@@ -128,7 +128,6 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
         songLen = mySongs.size();
         items = new String[ mySongs.size() ];
         for(int i=0;i<mySongs.size();i++){
-            //toast(mySongs.get(i).getName().toString());
             items[i] = mySongs.get(i).getName().toString().replace(".mp3","").replace(".wav","");
         }
         ArrayAdapter<String> adp = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,items);
@@ -155,21 +154,21 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
         currY = sensorEvent.values[1];
         currZ = sensorEvent.values[2];
 
-        xDiff = Math.abs(lastX - currX);
-        yDiff = Math.abs(lastY - currY);
-        zDiff = Math.abs(lastZ - currZ);
+        if(accFirst) {
+            xDiff = Math.abs(lastX - currX);
+            yDiff = Math.abs(lastY - currY);
+            zDiff = Math.abs(lastZ - currZ);
 
-        if ((xDiff >5 && yDiff >5) || (xDiff >5 && zDiff >5) || (yDiff >5 && zDiff >5)){
-            shuffle.performClick();
-//            Random r = new Random();
-//            int pos = r.nextInt(6);
-//            listView.performItemClick(
-//                    listView.getAdapter().getView(pos, null, null), pos, pos);
-
+            if ((xDiff > 8 && yDiff > 8) || (xDiff > 8 && zDiff > 8) || (yDiff > 8 && zDiff > 8) || (xDiff > 1)) {
+            //if ((xDiff >8 && yDiff >8) || (xDiff >8 && zDiff >8) || (yDiff >8 && zDiff >8)){
+                shuffle.performClick();
+            }
         }
+
         lastX = currX;
         lastY = currY;
         lastZ = currZ;
+        accFirst = true;
     }
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {

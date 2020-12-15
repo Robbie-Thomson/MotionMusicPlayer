@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.android.developer.robBT.MotionMusic">
+    package="com.robBT.MotionMusic">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name="com.android.developer.robBT.MotionMusic.Tunes">
+        <activity android:name="com.robBT.MotionMusic.Tunes">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,13 +20,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.android.developer.robBT.MotionMusic.PlayerActivity" />
+        <activity android:name="com.robBT.MotionMusic.PlayerActivity" />
 
-        <activity android:name="com.android.developer.robBT.MotionMusic.listPop"
+        <activity android:name="com.robBT.MotionMusic.listPop"
             android:theme="@style/AppTheme.Popup">
         </activity>
 
-        <activity android:name="com.android.developer.robBT.MotionMusic.playerPop"
+        <activity android:name="com.robBT.MotionMusic.playerPop"
             android:theme="@style/AppTheme.Popup">
         </activity>
     </application>
