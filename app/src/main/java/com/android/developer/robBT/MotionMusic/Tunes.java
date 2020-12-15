@@ -43,6 +43,7 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
     private Sensor accelerometer;
     private Boolean accAvailable;
     private float currX, currY, currZ, lastX, lastY, lastZ, xDiff, yDiff, zDiff;
+    public int songLen = 0;
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -52,13 +53,11 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
         listView = (ListView) findViewById(R.id.listView);
         getSupportActionBar().setTitle("Music List");
 
-
         Dexter.withActivity(this)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                 .withListener(new PermissionListener() {
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
-
                         display();
                     }
 
@@ -81,7 +80,7 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
             @Override
             public void onClick(View v) {
                 Random r = new Random();
-                int pos = r.nextInt(6);
+                int pos = r.nextInt(songLen);
 
                 listView.performItemClick(
                         listView.getAdapter().getView(pos, null, null), pos, pos);
@@ -126,6 +125,7 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
 
     public void display(){
         final ArrayList<File> mySongs = findSong(Environment.getExternalStorageDirectory());
+        songLen = mySongs.size();
         items = new String[ mySongs.size() ];
         for(int i=0;i<mySongs.size();i++){
             //toast(mySongs.get(i).getName().toString());
@@ -159,8 +159,13 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
         yDiff = Math.abs(lastY - currY);
         zDiff = Math.abs(lastZ - currZ);
 
-        if ((xDiff >5 && yDiff >5) || (xDiff >5 && zDiff >5) || (yDiff >5 && zDiff >5) || xDiff>1){
+        if ((xDiff >5 && yDiff >5) || (xDiff >5 && zDiff >5) || (yDiff >5 && zDiff >5)){
             shuffle.performClick();
+//            Random r = new Random();
+//            int pos = r.nextInt(6);
+//            listView.performItemClick(
+//                    listView.getAdapter().getView(pos, null, null), pos, pos);
+
         }
         lastX = currX;
         lastY = currY;

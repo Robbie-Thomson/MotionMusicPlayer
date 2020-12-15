@@ -33,8 +33,8 @@ public class PlayerActivity extends AppCompatActivity implements SensorEventList
 
     //shake to play/pause
     private SensorManager sensorManager;
-    private Sensor light;
-    private Boolean lightAvailable;
+    private Sensor prox;
+    private Boolean proxAvailable;
     private float currX, lastX,  xDiff;
 
     @SuppressLint("NewApi")
@@ -128,10 +128,10 @@ public class PlayerActivity extends AppCompatActivity implements SensorEventList
 
         //shake to play random
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) != null){
-            light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-            lightAvailable = true;
-        }else { lightAvailable = false;}
+        if (sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY) != null){
+            prox = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+            proxAvailable = true;
+        }else { proxAvailable = false;}
 
 
     }
@@ -162,9 +162,7 @@ public class PlayerActivity extends AppCompatActivity implements SensorEventList
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         currX = sensorEvent.values[0];
-        xDiff = Math.abs(lastX - currX);
-
-        if (2*currX < lastX){
+        if (currX < lastX * 0.8){
             pause.performClick();
         }
         lastX = currX;
@@ -175,13 +173,13 @@ public class PlayerActivity extends AppCompatActivity implements SensorEventList
     @Override
     protected void onResume() {
         super.onResume();
-        if (lightAvailable)
-            sensorManager.registerListener(this, light, SensorManager.SENSOR_DELAY_NORMAL);
+        if (proxAvailable)
+            sensorManager.registerListener(this, prox, SensorManager.SENSOR_DELAY_NORMAL);
     }
     @Override
     protected void onPause() {
         super.onPause();
-        if (lightAvailable)
+        if (proxAvailable)
             sensorManager.unregisterListener(this);
     }
 }

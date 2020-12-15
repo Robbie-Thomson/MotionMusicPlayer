@@ -19,9 +19,9 @@
     <TextView
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_marginTop="82dp"
-        android:text="On the Now Playing page it is possible to Play and Pause the music by quickly covering up the front of the device your hand, making sure to cover the selfie camera."
-        android:textSize="20sp"
+        android:layout_marginTop="72dp"
+        android:text="On the Now Playing page it is possible to Play and Pause the music by moving a hand over the device, making sure to cover the selfie camera."
+        android:textSize="16sp"
         android:textColor="@color/colorPrimaryDark"
         android:textAlignment="center"
         android:paddingLeft="40dp"
@@ -33,12 +33,11 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="300dp"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:paddingTop="100dp"
         android:src="@drawable/covering"
-        android:contentDescription="Covering Phone"
-        android:scaleX="2"
-        android:scaleY="2">
+        android:contentDescription="Covering Phone">
     </ImageView>
 
 
