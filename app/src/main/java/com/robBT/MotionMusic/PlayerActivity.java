@@ -133,9 +133,7 @@ public class PlayerActivity extends AppCompatActivity implements SensorEventList
             proxAvailable = true;
         }else { proxAvailable = false;}
 
-
     }
-
 
 
 

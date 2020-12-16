@@ -41,7 +41,7 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
     //shake to play/pause
     private SensorManager sensorManager;
     private Sensor accelerometer;
-    private Boolean accAvailable, accFirst = false;
+    private Boolean accAvailable, accFirst = true;
     private float currX, currY, currZ, lastX, lastY, lastZ, xDiff, yDiff, zDiff;
     public int songLen = 0;
 
@@ -114,8 +114,10 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
                 songList.addAll(findSong(singleFile));
             }
             else{
-                if( (singleFile.getName().endsWith(".mp3") || singleFile.getName().endsWith(".wav")) &&
-                        (!singleFile.getName().contains("._") || !singleFile.getName().contains("slack")) ){
+                if((singleFile.getName().endsWith(".mp3") || singleFile.getName().endsWith(".wav")) &&
+                                !(singleFile.getName().contains("._")
+                                || singleFile.getName().contains("Slack")
+                                || singleFile.getName().contains("soundscape")) ){
                     songList.add(singleFile);
                 }
             }
@@ -154,21 +156,22 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
         currY = sensorEvent.values[1];
         currZ = sensorEvent.values[2];
 
-        if(accFirst) {
+        //make sure its not the first set of values
+        if(!accFirst) {
             xDiff = Math.abs(lastX - currX);
             yDiff = Math.abs(lastY - currY);
             zDiff = Math.abs(lastZ - currZ);
-
-            if ((xDiff > 8 && yDiff > 8) || (xDiff > 8 && zDiff > 8) || (yDiff > 8 && zDiff > 8) || (xDiff > 1)) {
-            //if ((xDiff >8 && yDiff >8) || (xDiff >8 && zDiff >8) || (yDiff >8 && zDiff >8)){
+            //if ((xDiff > 8 && yDiff > 8) || (xDiff > 8 && zDiff > 8) || (yDiff > 8 && zDiff > 8) || (xDiff > 1)) {
+            if ((xDiff >8 && yDiff >8) || (xDiff >8 && zDiff >8) || (yDiff >8 && zDiff >8)){
                 shuffle.performClick();
+                //ensure next pass doesn't activate again
+                accFirst = true;
             }
-        }
+        } else {accFirst = false;}
 
         lastX = currX;
         lastY = currY;
         lastZ = currZ;
-        accFirst = true;
     }
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
