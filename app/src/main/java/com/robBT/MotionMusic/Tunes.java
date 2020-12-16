@@ -73,8 +73,9 @@ public class Tunes extends AppCompatActivity {
                     @Override
                     public void onPermissionDenied(PermissionDeniedResponse response) {
                         // check for permanent denial of permission
+                        setContentView(R.layout.no_permission);
                         if (response.isPermanentlyDenied()) {
-
+                            setContentView(R.layout.no_permission);
                         }
                     }
 
@@ -112,7 +113,7 @@ public class Tunes extends AppCompatActivity {
                         xDiff = Math.abs(lastX - currX);
                         yDiff = Math.abs(lastY - currY);
                         zDiff = Math.abs(lastZ - currZ);
-                        if ((xDiff >8 && yDiff >8) || (xDiff >8 && zDiff >8) || (yDiff >8 && zDiff >8)){
+                        if ((xDiff >15 && yDiff >15) || (xDiff >15 && zDiff >15) || (yDiff >15 && zDiff >15)){
                             shuffle.performClick();
                             accFirst = true;
                             acc2 = true;
@@ -159,9 +160,9 @@ public class Tunes extends AppCompatActivity {
     public void display(){
         final ArrayList<File> mySongs = findSong(Environment.getExternalStorageDirectory());
         songLen = mySongs.size();
-        items = new String[ mySongs.size() ];
+        items = new String[ songLen ];
         for(int i=0;i<mySongs.size();i++){
-            items[i] = mySongs.get(i).getName().toString().replace(".mp3","").replace(".wav","");
+            items[i] = mySongs.get(i).getName().replace(".mp3","").replace(".wav","");
         }
         ArrayAdapter<String> adp = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,items);
         listView.setAdapter(adp);

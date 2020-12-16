@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_tune"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background1"
+    tools:context="com.robBT.MotionMusic.Tunes">
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Permission to retrieve music files has not been granted.\n\n
+Close and Reopen the app and allow this or change the app permissions in your settings."
+        android:textSize="24sp"
+        android:textAlignment="center"
+        android:gravity="center_horizontal"
+        android:layout_margin="40dp"
+        android:padding="40dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/curved_edge"
+        android:textColor="@color/colorAccent"
+        >
+    </TextView>
+
+</RelativeLayout>

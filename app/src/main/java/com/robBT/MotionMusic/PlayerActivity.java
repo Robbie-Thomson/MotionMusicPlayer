@@ -73,7 +73,7 @@ public class PlayerActivity extends AppCompatActivity{
 
         mySongs = (ArrayList) b.getParcelableArrayList("songs");
 
-        sname = mySongs.get(position).getName();
+        sname = mySongs.get(position).getName().replace(".mp3","").replace(".wav","");
 
         String SongName = i.getStringExtra("songname");
         songNameText.setText(SongName);
@@ -107,10 +107,10 @@ public class PlayerActivity extends AppCompatActivity{
                 mp.release();
                 position=((position+1)%mySongs.size());
                 Uri u = Uri.parse(mySongs.get( position).toString());
-                songNameText.setText(sname);
+                songNameText.setText(sname.replace(".mp3","").replace(".wav",""));
                 mp = MediaPlayer.create(getApplicationContext(),u);
 
-                sname = mySongs.get(position).getName();
+                sname = mySongs.get(position).getName().replace(".mp3","").replace(".wav","");
                 songNameText.setText(sname);
 
                 pause.setBackgroundResource(R.drawable.pause_icon);
@@ -128,7 +128,7 @@ public class PlayerActivity extends AppCompatActivity{
                 position=((position-1)<0)?(mySongs.size()-1):(position-1);
                 Uri u = Uri.parse(mySongs.get(position).toString());
                 mp = MediaPlayer.create(getApplicationContext(),u);
-                sname = mySongs.get(position).getName();
+                sname = mySongs.get(position).getName().replace(".mp3","").replace(".wav","");
                 songNameText.setText(sname);
                 pause.setBackgroundResource(R.drawable.pause_icon);
                 mp.start();
@@ -172,7 +172,7 @@ public class PlayerActivity extends AppCompatActivity{
                         xDiff = Math.abs(lastX - currX);
                         yDiff = Math.abs(lastY - currY);
                         zDiff = Math.abs(lastZ - currZ);
-                        if ((xDiff >10 && yDiff >10) || (xDiff >10&& zDiff >10) || (yDiff >10 && zDiff >10)){
+                        if ((xDiff >20 && yDiff >20) || (xDiff > 20 && zDiff >20) || (yDiff >20 && zDiff >20)){
                             // stuff from next
 
                             Random r = new Random();
@@ -183,7 +183,7 @@ public class PlayerActivity extends AppCompatActivity{
                             songNameText.setText(sname);
                             mp = MediaPlayer.create(getApplicationContext(),u);
 
-                            sname = mySongs.get(position).getName();
+                            sname = mySongs.get(position).getName().replace(".mp3","").replace(".wav","");
                             songNameText.setText(sname);
 
                             pause.setBackgroundResource(R.drawable.pause_icon);
