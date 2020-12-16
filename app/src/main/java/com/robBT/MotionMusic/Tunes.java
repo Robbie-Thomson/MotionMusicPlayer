@@ -2,6 +2,7 @@ package com.robBT.MotionMusic;
 
 import android.Manifest;
 import android.content.Context;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -33,17 +34,23 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Tunes extends AppCompatActivity implements SensorEventListener {
+//public class Tunes extends AppCompatActivity implements SensorEventListener {
+public class Tunes extends AppCompatActivity {
+
     ListView listView;
     String[] items;
     Button shuffle;
+    public int songLen = 0;
+
 
     //shake to play/pause
-    private SensorManager sensorManager;
-    private Sensor accelerometer;
-    private Boolean accAvailable, accFirst = true;
-    private float currX, currY, currZ, lastX, lastY, lastZ, xDiff, yDiff, zDiff;
-    public int songLen = 0;
+//    private SensorManager sensorManager;
+//    private Sensor accelerometer;
+//    private Boolean accAvailable,
+    private Boolean accFirst = true, acc2 = true;
+//    private float currX, currY, currZ, lastX, lastY, lastZ, xDiff, yDiff, zDiff;
+    private float lastX, lastY, lastZ, xDiff, yDiff, zDiff;
+    private Accelerometer accelerometer;
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -52,6 +59,8 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
         setContentView(R.layout.activity_tunes);
         listView = (ListView) findViewById(R.id.listView);
         getSupportActionBar().setTitle("Music List");
+
+        accelerometer = new Accelerometer( this);
 
         Dexter.withActivity(this)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -88,11 +97,33 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
         });
 
         //initialise sensor
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
-            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            accAvailable = true;
-        }else { accAvailable = false;}
+//        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+//        if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
+//            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+//            accAvailable = true;
+//        }else { accAvailable = false;}
+        accelerometer.setListener(new Accelerometer.Listener() {
+            @Override
+            public void onTranslation(float currX, float currY, float currZ) {
+                //ensure first pass is missed to ensure lastX, lastY and lastZ have values
+                if(!accFirst) {
+                    //ensure this does not happen duplicate times
+                    if(!acc2) {
+                        xDiff = Math.abs(lastX - currX);
+                        yDiff = Math.abs(lastY - currY);
+                        zDiff = Math.abs(lastZ - currZ);
+                        if ((xDiff >8 && yDiff >8) || (xDiff >8 && zDiff >8) || (yDiff >8 && zDiff >8)){
+                            shuffle.performClick();
+                            accFirst = true;
+                            acc2 = true;
+                        }
+                    }else {acc2 = false;}
+                }else {accFirst = false;}
+                lastX = currX;
+                lastY = currY;
+                lastZ = currZ;
+            }
+        });
     }
 
     @Override
@@ -150,42 +181,54 @@ public class Tunes extends AppCompatActivity implements SensorEventListener {
 
 
     //shake to play/pause
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        currX = sensorEvent.values[0];
-        currY = sensorEvent.values[1];
-        currZ = sensorEvent.values[2];
-
-        //make sure its not the first set of values
-        if(!accFirst) {
-            xDiff = Math.abs(lastX - currX);
-            yDiff = Math.abs(lastY - currY);
-            zDiff = Math.abs(lastZ - currZ);
-            //if ((xDiff > 8 && yDiff > 8) || (xDiff > 8 && zDiff > 8) || (yDiff > 8 && zDiff > 8) || (xDiff > 1)) {
-            if ((xDiff >8 && yDiff >8) || (xDiff >8 && zDiff >8) || (yDiff >8 && zDiff >8)){
-                shuffle.performClick();
-                //ensure next pass doesn't activate again
-                accFirst = true;
-            }
-        } else {accFirst = false;}
-
-        lastX = currX;
-        lastY = currY;
-        lastZ = currZ;
-    }
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-    }
+//    @Override
+//    public void onSensorChanged(SensorEvent sensorEvent) {
+//        currX = sensorEvent.values[0];
+//        currY = sensorEvent.values[1];
+//        currZ = sensorEvent.values[2];
+//
+//        //make sure its not the first set of values
+//        if(!accFirst) {
+//            xDiff = Math.abs(lastX - currX);
+//            yDiff = Math.abs(lastY - currY);
+//            zDiff = Math.abs(lastZ - currZ);
+//            //if ((xDiff > 8 && yDiff > 8) || (xDiff > 8 && zDiff > 8) || (yDiff > 8 && zDiff > 8) || (xDiff > 1)) {
+//            if ((xDiff >8 && yDiff >8) || (xDiff >8 && zDiff >8) || (yDiff >8 && zDiff >8)){
+//                shuffle.performClick();
+//                //ensure next pass doesn't activate again
+//                accFirst = true;
+//            }
+//        } else {accFirst = false;}
+//
+//        lastX = currX;
+//        lastY = currY;
+//        lastZ = currZ;
+//    }
+//    @Override
+//    public void onAccuracyChanged(Sensor sensor, int i) {
+//    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        if (accAvailable)
+//            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+//    }
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        if (accAvailable)
+//            sensorManager.unregisterListener(this);
+//    }
     @Override
     protected void onResume() {
         super.onResume();
-        if (accAvailable)
-            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        accelerometer.register();
     }
+
     @Override
     protected void onPause() {
         super.onPause();
-        if (accAvailable)
-            sensorManager.unregisterListener(this);
+        accelerometer.unregister();
     }
+
 }

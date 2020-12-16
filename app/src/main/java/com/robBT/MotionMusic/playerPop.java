@@ -1,6 +1,7 @@
 package com.robBT.MotionMusic;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
@@ -20,5 +21,6 @@ public class playerPop extends Activity {
         int height = dm.heightPixels;
 
         getWindow().setLayout((int) (width*0.8), (int) (height*0.6));
+
     }
 }

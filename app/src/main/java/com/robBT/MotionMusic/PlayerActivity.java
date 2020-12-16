@@ -3,6 +3,7 @@ package com.robBT.MotionMusic;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -22,7 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class PlayerActivity extends AppCompatActivity implements SensorEventListener {
+public class PlayerActivity extends AppCompatActivity{
 
     static MediaPlayer mp;//assigning memory loc once or else multiple songs will play at once
     int position;
@@ -31,17 +32,26 @@ public class PlayerActivity extends AppCompatActivity implements SensorEventList
     TextView songNameText;
     String sname;
 
+    private Proximity proximity;
     //shake to play/pause
-    private SensorManager sensorManager;
-    private Sensor prox;
-    private Boolean proxAvailable;
-    private float currX, lastX,  xDiff;
+//    private SensorManager sensorManager;
+//    private Sensor prox;
+//    private Boolean proxAvailable;
+//    private float currX, lastX,  xDiff;
+    private Boolean firstProx = true;
+    private float lastProx;
+    private Boolean accFirst = true, acc2 = true;
+    private float lastX, lastY, lastZ, xDiff, yDiff, zDiff;
+    private Accelerometer accelerometer;
 
     @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.music_player_ui);
+
+        accelerometer = new Accelerometer( this);
+        proximity = new Proximity(this);
 
         songNameText = findViewById(R.id.txtSongLabel);
 
@@ -97,7 +107,7 @@ public class PlayerActivity extends AppCompatActivity implements SensorEventList
                 mp.release();
                 position=((position+1)%mySongs.size());
                 Uri u = Uri.parse(mySongs.get( position).toString());
-               // songNameText.setText(getSongName);
+                songNameText.setText(sname);
                 mp = MediaPlayer.create(getApplicationContext(),u);
 
                 sname = mySongs.get(position).getName();
@@ -105,7 +115,6 @@ public class PlayerActivity extends AppCompatActivity implements SensorEventList
 
                 pause.setBackgroundResource(R.drawable.pause_icon);
                 mp.start();
-
             }
         });
 
@@ -126,12 +135,71 @@ public class PlayerActivity extends AppCompatActivity implements SensorEventList
             }
         });
 
+        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                next.performClick();
+            }
+        });
+
         //shake to play random
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY) != null){
-            prox = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-            proxAvailable = true;
-        }else { proxAvailable = false;}
+//        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+//        if (sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY) != null){
+//            prox = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+//            proxAvailable = true;
+//        }else { proxAvailable = false;}
+
+        proximity.setListener(new Proximity.Listener() {
+            @Override
+            public void onRotation(float prox) {
+                if (!firstProx) {
+                    if (prox < lastProx * 0.8) {
+                        pause.performClick();
+                        firstProx = true;
+                    }
+                } else { firstProx = false; }
+                lastProx = prox;
+            }
+        });
+
+        accelerometer.setListener(new Accelerometer.Listener() {
+            @Override
+            public void onTranslation(float currX, float currY, float currZ) {
+                //ensure first pass is missed to ensure lastX, lastY and lastZ have values
+                if(!accFirst) {
+                    //ensure this does not happen duplicate times
+                    if(!acc2) {
+                        xDiff = Math.abs(lastX - currX);
+                        yDiff = Math.abs(lastY - currY);
+                        zDiff = Math.abs(lastZ - currZ);
+                        if ((xDiff >10 && yDiff >10) || (xDiff >10&& zDiff >10) || (yDiff >10 && zDiff >10)){
+                            // stuff from next
+
+                            Random r = new Random();
+                            mp.stop();
+                            mp.release();
+                            position=((position+(r.nextInt(mySongs.size())))%mySongs.size());
+                            Uri u = Uri.parse(mySongs.get( position).toString());
+                            songNameText.setText(sname);
+                            mp = MediaPlayer.create(getApplicationContext(),u);
+
+                            sname = mySongs.get(position).getName();
+                            songNameText.setText(sname);
+
+                            pause.setBackgroundResource(R.drawable.pause_icon);
+                            mp.start();
+
+
+                            accFirst = true;
+                            acc2 = true;
+                        }
+                    }else {acc2 = false;}
+                }else {accFirst = false;}
+                lastX = currX;
+                lastY = currY;
+                lastZ = currZ;
+            }
+        });
 
     }
 
@@ -157,27 +225,28 @@ public class PlayerActivity extends AppCompatActivity implements SensorEventList
 
 
     //cover to play/pause
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        currX = sensorEvent.values[0];
-        if (currX < lastX * 0.8){
-            pause.performClick();
-        }
-        lastX = currX;
-    }
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-    }
+//    @Override
+//    public void onSensorChanged(SensorEvent sensorEvent) {
+//        currX = sensorEvent.values[0];
+//        if (currX < lastX * 0.8){
+//            pause.performClick();
+//        }
+//        lastX = currX;
+//    }
+//    @Override
+//    public void onAccuracyChanged(Sensor sensor, int i) {
+//    }
     @Override
     protected void onResume() {
         super.onResume();
-        if (proxAvailable)
-            sensorManager.registerListener(this, prox, SensorManager.SENSOR_DELAY_NORMAL);
+        proximity.register();
+        accelerometer.register();
     }
+
     @Override
     protected void onPause() {
         super.onPause();
-        if (proxAvailable)
-            sensorManager.unregisterListener(this);
+        proximity.unregister();
+        accelerometer.unregister();
     }
 }
