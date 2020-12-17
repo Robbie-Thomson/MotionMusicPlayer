@@ -58,7 +58,7 @@ public class Tunes extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tunes);
         listView = (ListView) findViewById(R.id.listView);
-        getSupportActionBar().setTitle("Music List");
+        getSupportActionBar().setTitle("Motion Music");
 
         accelerometer = new Accelerometer( this);
 
@@ -67,6 +67,7 @@ public class Tunes extends AppCompatActivity {
                 .withListener(new PermissionListener() {
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
+                        getSupportActionBar().setTitle("Music List");
                         display();
                     }
 
@@ -74,8 +75,10 @@ public class Tunes extends AppCompatActivity {
                     public void onPermissionDenied(PermissionDeniedResponse response) {
                         // check for permanent denial of permission
                         setContentView(R.layout.no_permission);
+                        getSupportActionBar().setTitle("Motion Music");
                         if (response.isPermanentlyDenied()) {
                             setContentView(R.layout.no_permission);
+                            getSupportActionBar().setTitle("Motion Music");
                         }
                     }
 

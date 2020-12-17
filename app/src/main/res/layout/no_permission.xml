@@ -10,7 +10,7 @@
     <TextView
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:text="Permission to retrieve music files has not been granted.\n\n
+        android:text="Permission to retrieve music files has not yet been granted.\n\n
 Close and Reopen the app and allow this or change the app permissions in your settings."
         android:textSize="24sp"
         android:textAlignment="center"

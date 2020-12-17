@@ -13,7 +13,6 @@
     </style>
 
     <style name="AppTheme.Popup">
-
         <item name = "android:windowIsTranslucent">true</item>
         <item name = "android:windowCloseOnTouchOutside">true</item>
     </style>
