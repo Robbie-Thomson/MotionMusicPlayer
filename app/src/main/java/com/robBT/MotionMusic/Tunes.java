@@ -1,18 +1,12 @@
 package com.robBT.MotionMusic;
 
 import android.Manifest;
-import android.content.Context;
-import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
+import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.content.Intent;
-import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,7 +14,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -29,12 +22,10 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
 
-//public class Tunes extends AppCompatActivity implements SensorEventListener {
 public class Tunes extends AppCompatActivity {
 
     ListView listView;
@@ -42,13 +33,7 @@ public class Tunes extends AppCompatActivity {
     Button shuffle;
     public int songLen = 0;
 
-
-    //shake to play/pause
-//    private SensorManager sensorManager;
-//    private Sensor accelerometer;
-//    private Boolean accAvailable,
-    private Boolean accFirst = true, acc2 = true;
-//    private float currX, currY, currZ, lastX, lastY, lastZ, xDiff, yDiff, zDiff;
+    private Boolean accFirst = true, loaded = false;
     private float lastX, lastY, lastZ, xDiff, yDiff, zDiff;
     private Accelerometer accelerometer;
 
@@ -87,11 +72,12 @@ public class Tunes extends AppCompatActivity {
                         token.continuePermissionRequest();
                     }
                 }).check();
-        shuffle = findViewById(R.id.shuffle);
 
+        shuffle = findViewById(R.id.shuffle);
         shuffle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //generate random number to use as position of what song to play
                 Random r = new Random();
                 int pos = r.nextInt(songLen);
 
@@ -100,29 +86,25 @@ public class Tunes extends AppCompatActivity {
             }
         });
 
-        //initialise sensor
-//        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-//        if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
-//            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-//            accAvailable = true;
-//        }else { accAvailable = false;}
         accelerometer.setListener(new Accelerometer.Listener() {
             @Override
             public void onTranslation(float currX, float currY, float currZ) {
                 //ensure first pass is missed to ensure lastX, lastY and lastZ have values
-                if(!accFirst) {
-                    //ensure this does not happen duplicate times
-                    if(!acc2) {
-                        xDiff = Math.abs(lastX - currX);
-                        yDiff = Math.abs(lastY - currY);
-                        zDiff = Math.abs(lastZ - currZ);
-                        if ((xDiff >15 && yDiff >15) || (xDiff >15 && zDiff >15) || (yDiff >15 && zDiff >15)){
-                            shuffle.performClick();
-                            accFirst = true;
-                            acc2 = true;
-                        }
-                    }else {acc2 = false;}
+                if(!accFirst && loaded) {
+                    xDiff = Math.abs(lastX - currX);
+                    yDiff = Math.abs(lastY - currY);
+                    zDiff = Math.abs(lastZ - currZ);
+
+//                    int threshH = 2;        //Low
+//                    int threshH = 16;       //Mid
+                    int threshH = 50;       //High
+
+                    if ((xDiff > threshH && yDiff > threshH) || (xDiff > threshH && zDiff > threshH) || (yDiff > threshH && zDiff > threshH)){
+                        shuffle.performClick();
+                        accFirst = true;
+                    }
                 }else {accFirst = false;}
+
                 lastX = currX;
                 lastY = currY;
                 lastZ = currZ;
@@ -142,7 +124,7 @@ public class Tunes extends AppCompatActivity {
     }
 
     public ArrayList<File> findSong(File root){
-        ArrayList<File> songList = new ArrayList<File>();
+        ArrayList<File> songList = new ArrayList<>();
         File[] files = root.listFiles();
         for(File singleFile : files){
             if(singleFile.isDirectory() && !singleFile.isHidden()){
@@ -152,9 +134,8 @@ public class Tunes extends AppCompatActivity {
                 if((singleFile.getName().endsWith(".mp3") || singleFile.getName().endsWith(".wav")) &&
                                 !(singleFile.getName().contains("._")
                                 || singleFile.getName().contains("Slack")
-                                || singleFile.getName().contains("soundscape")) ){
-                    songList.add(singleFile);
-                }
+                                || singleFile.getName().contains("soundscape")) )
+                {   songList.add(singleFile);   }
             }
         }
         return songList;
@@ -163,11 +144,12 @@ public class Tunes extends AppCompatActivity {
     public void display(){
         final ArrayList<File> mySongs = findSong(Environment.getExternalStorageDirectory());
         songLen = mySongs.size();
+        if (songLen >0) { loaded = true; }
         items = new String[ songLen ];
         for(int i=0;i<mySongs.size();i++){
             items[i] = mySongs.get(i).getName().replace(".mp3","").replace(".wav","");
         }
-        ArrayAdapter<String> adp = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,items);
+        ArrayAdapter<String> adp = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
         listView.setAdapter(adp);
 
 
@@ -183,46 +165,6 @@ public class Tunes extends AppCompatActivity {
         });
     }
 
-
-    //shake to play/pause
-//    @Override
-//    public void onSensorChanged(SensorEvent sensorEvent) {
-//        currX = sensorEvent.values[0];
-//        currY = sensorEvent.values[1];
-//        currZ = sensorEvent.values[2];
-//
-//        //make sure its not the first set of values
-//        if(!accFirst) {
-//            xDiff = Math.abs(lastX - currX);
-//            yDiff = Math.abs(lastY - currY);
-//            zDiff = Math.abs(lastZ - currZ);
-//            //if ((xDiff > 8 && yDiff > 8) || (xDiff > 8 && zDiff > 8) || (yDiff > 8 && zDiff > 8) || (xDiff > 1)) {
-//            if ((xDiff >8 && yDiff >8) || (xDiff >8 && zDiff >8) || (yDiff >8 && zDiff >8)){
-//                shuffle.performClick();
-//                //ensure next pass doesn't activate again
-//                accFirst = true;
-//            }
-//        } else {accFirst = false;}
-//
-//        lastX = currX;
-//        lastY = currY;
-//        lastZ = currZ;
-//    }
-//    @Override
-//    public void onAccuracyChanged(Sensor sensor, int i) {
-//    }
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        if (accAvailable)
-//            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-//    }
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        if (accAvailable)
-//            sensorManager.unregisterListener(this);
-//    }
     @Override
     protected void onResume() {
         super.onResume();
