@@ -12,7 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name="com.robBT.MotionMusic.Tunes">
+        <activity android:name="com.robBT.MotionMusic.Tunes"/>
+
+
+        <activity android:name="com.robBT.MotionMusic.Calibrator">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,7 +23,12 @@
             </intent-filter>
         </activity>
 
+
         <activity android:name="com.robBT.MotionMusic.PlayerActivity" />
+
+        <activity android:name="com.robBT.MotionMusic.calPop"
+            android:theme="@style/AppTheme.Popup">
+        </activity>
 
         <activity android:name="com.robBT.MotionMusic.listPop"
             android:theme="@style/AppTheme.Popup">

@@ -8,12 +8,14 @@ import android.os.Environment;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -31,7 +33,9 @@ public class Tunes extends AppCompatActivity {
     ListView listView;
     String[] items;
     Button shuffle;
-    public int songLen = 0;
+    private int songLen = 0;
+    public static final String EXTRA_NUMBER = "com.robBT.MotionMusic.EXTRA_NUMBER";
+    public float threshH = 0;
 
     private Boolean accFirst = true, loaded = false;
     private float lastX, lastY, lastZ, xDiff, yDiff, zDiff;
@@ -46,6 +50,11 @@ public class Tunes extends AppCompatActivity {
         getSupportActionBar().setTitle("Motion Music");
 
         accelerometer = new Accelerometer( this);
+
+        Intent intent = getIntent();
+        threshH = (intent.getIntExtra(Calibrator.EXTRA_NUMBER, 0));
+//        String Maxi = String.valueOf(threshH);
+//        Toast.makeText(getApplicationContext(),Maxi,Toast.LENGTH_SHORT).show();
 
         Dexter.withActivity(this)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -95,10 +104,6 @@ public class Tunes extends AppCompatActivity {
                     yDiff = Math.abs(lastY - currY);
                     zDiff = Math.abs(lastZ - currZ);
 
-//                    int threshH = 2;        //Low
-//                    int threshH = 16;       //Mid
-                    int threshH = 50;       //High
-
                     if ((xDiff > threshH && yDiff > threshH) || (xDiff > threshH && zDiff > threshH) || (yDiff > threshH && zDiff > threshH)){
                         shuffle.performClick();
                         accFirst = true;
@@ -114,12 +119,19 @@ public class Tunes extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.cal_menu, menu);
         getMenuInflater().inflate(R.menu.list_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        startActivity(new Intent(Tunes.this, listPop.class));
+        if(item.getItemId()==R.id.calInfo){
+            startActivity(new Intent(this, calPop.class));
+        } else if (item.getItemId()==R.id.lInfo)
+        {
+            startActivity(new Intent(this, listPop.class));
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -160,7 +172,7 @@ public class Tunes extends AppCompatActivity {
 
                 String songName = listView.getItemAtPosition(position).toString();
                 startActivity(new Intent(getApplicationContext(),PlayerActivity.class)
-                        .putExtra("pos",position).putExtra("songs",mySongs).putExtra("songname",songName));
+                        .putExtra("pos",position).putExtra("songs",mySongs).putExtra("songname",songName).putExtra(EXTRA_NUMBER, Math.round(threshH)));
             }
         });
     }
@@ -176,5 +188,4 @@ public class Tunes extends AppCompatActivity {
         super.onPause();
         accelerometer.unregister();
     }
-
 }

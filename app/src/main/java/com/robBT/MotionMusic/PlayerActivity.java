@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,6 +25,8 @@ public class PlayerActivity extends AppCompatActivity{
     Button pause,next,previous;
     TextView songNameText;
     String sname;
+    public static final String EXTRA_NUMBER = "com.robBT.MotionMusic.EXTRA_NUMBER";
+
 
     private Proximity proximity;
     private Boolean firstProx = true;
@@ -31,6 +34,8 @@ public class PlayerActivity extends AppCompatActivity{
     private Boolean accFirst = true;
     private float lastX, lastY, lastZ, xDiff, yDiff, zDiff;
     private Accelerometer accelerometer;
+    public float threshH = 0;
+
 
     @SuppressLint("NewApi")
     @Override
@@ -40,6 +45,11 @@ public class PlayerActivity extends AppCompatActivity{
 
         accelerometer = new Accelerometer( this);
         proximity = new Proximity(this);
+
+        Intent intent = getIntent();
+        threshH = (intent.getIntExtra(Calibrator.EXTRA_NUMBER, 0));
+//        String Maxi = String.valueOf(threshH);
+//        Toast.makeText(getApplicationContext(),Maxi,Toast.LENGTH_SHORT).show();
 
         songNameText = findViewById(R.id.txtSongLabel);
 
@@ -105,7 +115,6 @@ public class PlayerActivity extends AppCompatActivity{
                         next.performClick();
                     }
                 });
-
             }
         });
 
@@ -130,7 +139,6 @@ public class PlayerActivity extends AppCompatActivity{
                         next.performClick();
                     }
                 });
-
             }
         });
 
@@ -165,7 +173,6 @@ public class PlayerActivity extends AppCompatActivity{
                     zDiff = Math.abs(lastZ - currZ);
 
 //                    int threshH = 2;        //Low
-                    int threshH = 16;       //Mid
 //                    int threshH = 50;       //High
 
                     if ((xDiff > threshH && yDiff > threshH) || (xDiff > threshH && zDiff > threshH) || (yDiff > threshH && zDiff > threshH)){
@@ -194,7 +201,6 @@ public class PlayerActivity extends AppCompatActivity{
                 lastZ = currZ;
             }
         });
-
     }
 
     @Override
@@ -202,12 +208,11 @@ public class PlayerActivity extends AppCompatActivity{
         getMenuInflater().inflate(R.menu.player_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
-     @Override
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==android.R.id.home){
             onBackPressed();
-        } else if (item.getItemId()==R.id.pInfo)
-        {
+        } else if (item.getItemId()==R.id.pInfo) {
             startActivity(new Intent(PlayerActivity.this, playerPop.class));
         }
         return super.onOptionsItemSelected(item);
