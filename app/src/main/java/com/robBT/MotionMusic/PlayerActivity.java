@@ -205,6 +205,7 @@ public class PlayerActivity extends AppCompatActivity{
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.cal_menu, menu);
         getMenuInflater().inflate(R.menu.player_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -212,6 +213,8 @@ public class PlayerActivity extends AppCompatActivity{
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==android.R.id.home){
             onBackPressed();
+        } else if (item.getItemId()==R.id.calInfo) {
+            startActivity(new Intent(PlayerActivity.this, calPop.class));
         } else if (item.getItemId()==R.id.pInfo) {
             startActivity(new Intent(PlayerActivity.this, playerPop.class));
         }
